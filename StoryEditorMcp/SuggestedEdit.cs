@@ -27,10 +27,10 @@ public record SuggestedEdit(
         {
             string[] t = Lines(htmlComment);
 
-            var origRow = t[2];
-            var editRow = t[3];
-            var reasonRow = t[4];
-            var acceptedRow = t[5];
+            string origRow = t[1];
+            string editRow = t[2];
+            string reasonRow = t[3];
+            string acceptedRow = t[4];
 
             var edit = new SuggestedEdit(
                 chapter,
@@ -54,12 +54,12 @@ public record SuggestedEdit(
 
     private static string[] Lines(string htmlComment)
     {
-        string[] t = htmlComment.Split("\r\n");
+        string[] t = htmlComment.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
 
         if (t.Length == 8)
             return t;
 
-        t = htmlComment.Split("\n");
+        t = htmlComment.Split("\n", StringSplitOptions.RemoveEmptyEntries);
 
         if (t.Length == 8)
             return t;
