@@ -1,12 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using StoryEditorMcp;
 using System.ComponentModel;
 
 internal class McpStoryTools
 {
+    [McpServerTool, Description("Suggests an edit to a chapter.")]
+    public async Task<CallToolResult> SuggestAnEditForStory(
+    StoryTools chapterReader,
+        [Description("Chapter number")] int chapter,
+        [Description("The text which might need to be edited.")] string textToEdit,
+        [Description("This is the suggestion for an edit.")] string suggestedEdit,
+        [Description("This is the reason why the edited is needed.")] string reason)
+    {
+        StringOrError t = await chapterReader.SuggestEdit(chapter, textToEdit, suggestedEdit, reason);
+
+        return ResultHandler(t);
+    }
+
     [McpServerTool, Description("Reads a chapter of the story")]
-    public async Task<string> ReadChapterOfTheStory(
+    public async Task<CallToolResult> ReadChapterOfTheStory(
         StoryTools chapterReader,
         [Description("Chapter number")] int chapter = 0)
     {
@@ -16,7 +29,7 @@ internal class McpStoryTools
     }
 
     [McpServerTool, Description("All non-English words in the story.")]
-    public async Task<string> NonEnglishWords(
+    public async Task<CallToolResult> NonEnglishWords(
         StoryTools storyTools)
     {
         StringOrError t = await storyTools.ReadWords();
@@ -24,17 +37,34 @@ internal class McpStoryTools
         return ResultHandler(t);
     }
 
-    static string ResultHandler(StringOrError t)
+    static CallToolResult ResultHandler(StringOrError t)
     {
         return t switch
         {
-            string s => s,
+            string s => SuccessHandler(s),
             Error e => ErrorHandler(e)
         };
 
-        string ErrorHandler(Error error)
+        CallToolResult SuccessHandler(string content)
         {
-            return error.Reason;
+            return StringOrErrorToResult(content);
+        }
+
+        CallToolResult ErrorHandler(Error error)
+        {
+            return StringOrErrorToResult(error.Reason, true);
+        }
+
+        CallToolResult StringOrErrorToResult(string s, bool? isError = false)
+        {
+            CallToolResult t = new()
+            {
+                IsError = isError
+            };
+            TextContentBlock c = new() { Text = s };
+            t.Content.Add(c);
+
+            return t;
         }
     }
 }

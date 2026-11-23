@@ -1,3 +1,3 @@
 ﻿namespace StoryEditorMcp;
 
-public record Error(Exception Ex, string Reason);
+public record Error(string Reason, Exception? Ex = null);
