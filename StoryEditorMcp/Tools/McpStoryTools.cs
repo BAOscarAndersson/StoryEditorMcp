@@ -9,11 +9,13 @@ internal class McpStoryTools
     public async Task<CallToolResult> SuggestAnEditForStory(
     StoryTools chapterReader,
         [Description("Chapter number")] int chapter,
-        [Description("The text which might need to be edited.")] string textToEdit,
-        [Description("This is the suggestion for an edit.")] string suggestedEdit,
+        [Description("The text which might need to be edited.")] string original,
+        [Description("This is the suggestion for an edit.")] string edit,
         [Description("This is the reason why the edited is needed.")] string reason)
     {
-        StringOrError t = await chapterReader.SuggestEdit(chapter, textToEdit, suggestedEdit, reason);
+        SuggestedEdit s = new(chapter, original, edit, reason);
+
+        StringOrError t = await chapterReader.SuggestEdit(s);
 
         return ResultHandler(t);
     }

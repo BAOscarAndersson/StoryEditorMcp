@@ -51,26 +51,22 @@ public class StoryTools(string path)
         return Path.Combine(chapters, $"Chapter {chapter}.md");
     }
 
-   public async Task<StringOrError> SuggestEdit(
-        int chapter,
-        string textToEdit,
-        string suggestedEdit,
-        string reason)
+   public async Task<StringOrError> SuggestEdit(SuggestedEdit suggestedEdit)
     {
-        if (ContainsAnyHtmlCrap(suggestedEdit, reason))
+        if (ContainsAnyHtmlCrap(suggestedEdit.Edit, suggestedEdit.Reason, suggestedEdit.Original))
             return new Error("Edits should not contain html.");
 
         try
         {
-            string path = PathToChapter(chapter);
+            string path = PathToChapter(suggestedEdit.Chapter);
 
             string t = await File.ReadAllTextAsync(path);
 
-            var i = FindSingleOccurrence(t, textToEdit);
+            IntOrError i = FindSingleOccurrence(t, suggestedEdit.Original);
 
             return i switch
             {
-                int index => await TryApplySuggestedEdit(chapter, t, index, textToEdit, suggestedEdit, reason),
+                int index => await TryApplySuggestedEdit(t, index, suggestedEdit),
                 Error error => error
             };
         }
@@ -113,32 +109,19 @@ public class StoryTools(string path)
     }
 
     async Task<StringOrError> TryApplySuggestedEdit(
-        int chapterNr,
         string chapter,
         int index,
-        string textToEdit,
-        string editSuggestion,
-        string reason)
+        SuggestedEdit suggestedEdit)
     {
 
         string before = chapter.Substring(0, index);
         string after = chapter.Substring(index);
 
-        string edit = $"""
-
-            <!-- 
-            Orig: {textToEdit} 
-            Edit: {editSuggestion} 
-            Reason: {reason} 
-            Accepted: 
-            -->
-
-            """;
-            
+        string edit = suggestedEdit.AsHtmlComment();            
 
         string editedChapter = before + edit + after;
 
-        string chapterPath = PathToChapter(chapterNr);
+        string chapterPath = PathToChapter(suggestedEdit.Chapter);
 
         try
         {
