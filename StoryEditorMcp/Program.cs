@@ -16,7 +16,6 @@ services
     {
         options.Stateless = true;
     })
-    .WithTools<RandomNumberTools>()
     .WithTools<McpStoryTools>();
 
 WebApplication? app = builder.Build();
