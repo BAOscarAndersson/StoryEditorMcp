@@ -1,4 +1,6 @@
-﻿namespace StoryEditorMcp;
+﻿using System.Text.RegularExpressions;
+
+namespace StoryEditorMcp;
 
 public record SuggestedEdit(
     int Chapter,
@@ -7,6 +9,9 @@ public record SuggestedEdit(
     string Reason,
     string? Accepted = "")
 {
+    const string accepted = "y";
+    const string rejected = "n";
+
     public string AsHtmlComment()
     {
         return $"""
@@ -56,14 +61,36 @@ public record SuggestedEdit(
     {
         string[] t = htmlComment.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
 
-        if (t.Length == 8)
+        if (t.Length == 6)
             return t;
 
         t = htmlComment.Split("\n", StringSplitOptions.RemoveEmptyEntries);
 
-        if (t.Length == 8)
+        if (t.Length == 6)
             return t;
 
         throw new Exception("new lines are messed up.");
     }
+
+    internal bool ApprovedOrRejected()
+    {
+        return Accepted is accepted or rejected;
+    }
+
+    internal bool Approved()
+    {
+        return Accepted is accepted;
+    }
+
+    internal bool Rejected()
+    {
+        return Accepted is rejected;
+    }
+}
+
+internal partial class SuggestedEditRegex
+{
+
+    [GeneratedRegex("<!--(.*?)-->", RegexOptions.IgnoreCase | RegexOptions.Singleline, "en-SE")]
+    public static partial Regex HtmlCommentRegex { get; }
 }

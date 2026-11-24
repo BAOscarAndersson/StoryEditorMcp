@@ -1,23 +1,15 @@
 using StoryEditorMcp;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole().AddSimpleConsole(x => x.TimestampFormat = "[HH:mm:ss] ");
 
-IServiceCollection? services = builder.Services;
+builder.Services.AddStoryTools(builder.Configuration);
+builder.Services.AddMcpTools();
 
-string path = builder.Configuration["storyPath"] ?? throw new Exception("Need the path for the story.");
-services.AddSingleton(x => new StoryTools(path));
+WebApplication app = builder.Build();
 
-services
-    .AddMcpServer()
-    .WithHttpTransport(options =>
-    {
-        options.Stateless = true;
-    })
-    .WithTools<McpStoryTools>();
-
-WebApplication? app = builder.Build();
 app.MapMcp();
+
 app.Run();

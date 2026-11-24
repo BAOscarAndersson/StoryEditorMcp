@@ -5,9 +5,19 @@ using System.ComponentModel;
 
 internal class McpStoryTools
 {
+    [McpServerTool, Description("Applies approved suggestions of a chapter.")]
+    public async Task<CallToolResult> ApplyEditsToChapter(
+    StoryTools storyTools,
+    [Description("Chapter number")] int chapter)
+    {
+        StringOrError t = await storyTools.ApplyApprovedSuggestions(chapter);
+
+        return t.ToCallToolResult();
+    }
+
     [McpServerTool, Description("Suggests an edit to a chapter. An edit should not just be a word to edit. If you want to edit a word, edit the sentence in which the word is contained.")]
     public async Task<CallToolResult> SuggestAnEditForStory(
-    StoryTools chapterReader,
+        StoryTools storyTools,
         [Description("Chapter number")] int chapter,
         [Description("The text which might need to be edited.")] string original,
         [Description("This is the suggestion for an edit.")] string edit,
@@ -15,17 +25,17 @@ internal class McpStoryTools
     {
         SuggestedEdit s = new(chapter, original, edit, reason);
 
-        StringOrError t = await chapterReader.SuggestEdit(s);
+        StringOrError t = await storyTools.SuggestEdit(s);
 
         return t.ToCallToolResult();
     }
 
     [McpServerTool, Description("Reads a chapter of the story")]
     public async Task<CallToolResult> ReadChapterOfTheStory(
-        StoryTools chapterReader,
+        StoryTools storyTools,
         [Description("Chapter number of chapte to be read.")] int chapter = 0)
     {
-        StringOrError t = await chapterReader.ReadChapter(chapter);
+        StringOrError t = await storyTools.ReadChapter(chapter);
 
         return t.ToCallToolResult();
     }
