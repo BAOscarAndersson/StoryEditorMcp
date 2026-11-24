@@ -5,7 +5,7 @@ using System.ComponentModel;
 
 internal class McpStoryTools
 {
-    [McpServerTool, Description("Suggests an edit to a chapter.")]
+    [McpServerTool, Description("Suggests an edit to a chapter. An edit should not just be a word to edit. If you want to edit a word, edit the sentence in which the word is contained.")]
     public async Task<CallToolResult> SuggestAnEditForStory(
     StoryTools chapterReader,
         [Description("Chapter number")] int chapter,
@@ -17,17 +17,17 @@ internal class McpStoryTools
 
         StringOrError t = await chapterReader.SuggestEdit(s);
 
-        return ResultHandler(t);
+        return t.ToCallToolResult();
     }
 
     [McpServerTool, Description("Reads a chapter of the story")]
     public async Task<CallToolResult> ReadChapterOfTheStory(
         StoryTools chapterReader,
-        [Description("Chapter number")] int chapter = 0)
+        [Description("Chapter number of chapte to be read.")] int chapter = 0)
     {
         StringOrError t = await chapterReader.ReadChapter(chapter);
 
-        return ResultHandler(t);
+        return t.ToCallToolResult();
     }
 
     [McpServerTool, Description("All non-English words in the story.")]
@@ -36,37 +36,6 @@ internal class McpStoryTools
     {
         StringOrError t = await storyTools.ReadWords();
 
-        return ResultHandler(t);
-    }
-
-    static CallToolResult ResultHandler(StringOrError t)
-    {
-        return t switch
-        {
-            string s => SuccessHandler(s),
-            Error e => ErrorHandler(e)
-        };
-
-        CallToolResult SuccessHandler(string content)
-        {
-            return StringOrErrorToResult(content);
-        }
-
-        CallToolResult ErrorHandler(Error error)
-        {
-            return StringOrErrorToResult(error.Reason, true);
-        }
-
-        CallToolResult StringOrErrorToResult(string s, bool? isError = false)
-        {
-            CallToolResult t = new()
-            {
-                IsError = isError
-            };
-            TextContentBlock c = new() { Text = s };
-            t.Content.Add(c);
-
-            return t;
-        }
+        return t.ToCallToolResult();
     }
 }
