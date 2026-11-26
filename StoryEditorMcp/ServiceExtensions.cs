@@ -22,7 +22,7 @@ public static class ServiceExtensions
                 {
                     options.Stateless = true;
                 })
-                //.WithTools<McpApplyEdit>()
+                .WithTools<McpApplyEdit>()
                 .WithTools<McpStoryTools>();
 
             return services;

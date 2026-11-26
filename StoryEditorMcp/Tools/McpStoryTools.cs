@@ -5,7 +5,16 @@ using System.ComponentModel;
 
 internal class McpStoryTools
 {
-    [McpServerTool, Description("Suggests an edit to a chapter. An edit should not just be a word to edit. If you want to edit a word, edit the sentence in which the word is contained.")]
+    [McpServerTool, Description("" +
+        "Suggests an edit to a chapter. An edit should not just be a word to edit." +
+        "If the edit couldn't be located, try using more of the surrounding text." +
+        "The edit must be unique in the text." +
+        "If you want to edit a word, edit the sentence in which the word is contained." +
+        "The suggested edit should be the complete replacement for the original." +
+        "Example, original followed by edit then reason:" +
+        "This is an exxample" +
+        "This is an example" +
+        "One too many x")]
     public async Task<CallToolResult> SuggestAnEditForStory(
         StoryTools storyTools,
         [Description("Chapter number")] int chapter,
