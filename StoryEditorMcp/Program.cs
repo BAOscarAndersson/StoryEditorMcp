@@ -2,6 +2,8 @@ using StoryEditorMcp;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddCommandLine(args);
+
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole().AddSimpleConsole(x => x.TimestampFormat = "[HH:mm:ss] ");
 

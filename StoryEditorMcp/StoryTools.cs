@@ -2,7 +2,7 @@
 
 namespace StoryEditorMcp;
 
-public class StoryTools(string path)
+public partial class StoryTools(string path)
 {
     readonly string chapters = $@"{path}\Chapters";
     readonly string rejectedEdits = $@"{path}\RejectedEdits";
@@ -206,11 +206,22 @@ public class StoryTools(string path)
         string before = chapter.Substring(0, index);
         string after = chapter.Substring(index + suggestedEdit.Original.Length);
 
-        string editedChapter = before + edit + after;
+        string editedChapter = CollapseNewlines(before + edit + after);
 
         string chapterPath = PathToChapter(suggestedEdit.Chapter);
 
         await File.WriteAllTextAsync(chapterPath, editedChapter);
+    }
+
+    static string CollapseNewlines(string input)
+    {
+        return ThreeOrMoreNewlines.Replace(input, match =>
+        {
+            if (match.Value.StartsWith("\r\n")) 
+                return "\r\n\r\n";
+            else 
+                return "\n\n";
+        });
     }
 
     static (SuggestedEdit suggestedEdit, string modifiedChapter)?
@@ -249,4 +260,7 @@ public class StoryTools(string path)
 
         return (se, modifiedChapter);
     }
+
+    [GeneratedRegex(@"(?:\r\n|\n){3,}")]
+    static partial Regex ThreeOrMoreNewlines { get; }
 }
